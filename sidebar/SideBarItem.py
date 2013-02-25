@@ -7,6 +7,13 @@ import shutil
 from SideBarProject import SideBarProject
 
 try:
+    import urllib.parse as urlp # py3
+    import urllib.request as urlr # py3
+except:
+	import urllib as urlp # py2
+	urlr = urlp # py2
+
+try:
 	import desktop
 except:
 	pass
@@ -15,7 +22,7 @@ class Object():
 	pass
 
 def expand_vars(path):
-	for k, v in os.environ.iteritems():
+	for k, v in os.environ.items():
 		path = path.replace('%'+k+'%', v).replace('%'+k.lower()+'%', v)
 	return path
 
@@ -62,12 +69,12 @@ class SideBarItem:
 
 				for path in data.keys():
 					path2 = expand_vars(path)
-					print '-------------------------------------------------------'
-					print 'searching:'
-					print path2.lower().replace('\\', '/').replace('\\', '/').replace('//', '/').replace('//', '/')
-					print 'in:'
-					print self.path().lower().replace('\\', '/').replace('\\', '/').replace('//', '/').replace('//', '/')
-					print '-------------------------------------------------------'
+					print ('-------------------------------------------------------')
+					print ('searching:')
+					print (path2.lower().replace('\\', '/').replace('\\', '/').replace('//', '/').replace('//', '/'))
+					print ('in:')
+					print (self.path().lower().replace('\\', '/').replace('\\', '/').replace('//', '/').replace('//', '/'))
+					print ('-------------------------------------------------------')
 					if self.path().lower().replace('\\', '/').replace('\\', '/').replace('//', '/').replace('//', '/').find(path2.lower().replace('\\', '/').replace('\\', '/').replace('//', '/').replace('//', '/')) == 0:
 						url = data[path][type]
 						if url:
@@ -90,26 +97,22 @@ class SideBarItem:
 		return re.sub('^/+', '', self.pathWithoutProject())
 
 	def pathRelativeFromProjectEncoded(self):
-		import urllib
-		return urllib.quote(self.pathRelativeFromProject().encode('utf-8'))
+		return urlp.quote(self.pathRelativeFromProject().encode('utf-8'))
 
 	def pathRelativeFromView(self):
 		return os.path.relpath(self.path(), os.path.dirname(sublime.active_window().active_view().file_name())).replace('\\', '/')
 
 	def pathRelativeFromViewEncoded(self):
-		import urllib
-		return urllib.quote(os.path.relpath(self.path(), os.path.dirname(sublime.active_window().active_view().file_name())).replace('\\', '/').encode('utf-8'))
+		return urlp.quote(os.path.relpath(self.path(), os.path.dirname(sublime.active_window().active_view().file_name())).replace('\\', '/').encode('utf-8'))
 
 	def pathAbsoluteFromProject(self):
 		return self.pathWithoutProject()
 
 	def pathAbsoluteFromProjectEncoded(self):
-		import urllib
-		return urllib.quote(self.pathAbsoluteFromProject().encode('utf-8'))
+		return urlp.quote(self.pathAbsoluteFromProject().encode('utf-8'))
 
 	def uri(self):
-		import urllib
-		return 'file:'+urllib.pathname2url(self.path().encode('utf-8'));
+		return 'file:'+urlr.pathname2url(self.path().encode('utf-8'));
 
 	def join(self, name):
 		return os.path.join(self.path(), name)
@@ -171,8 +174,7 @@ class SideBarItem:
 		return self.name().encode(sys.getfilesystemencoding())
 
 	def nameEncoded(self):
-		import urllib
-		return urllib.quote(self.name().encode('utf-8'));
+		return urlq(self.name().encode('utf-8'));
 
 	def namePretty(self):
 		return self.name().replace(self.extension(), '').replace('-', ' ').replace('_', ' ').strip();
