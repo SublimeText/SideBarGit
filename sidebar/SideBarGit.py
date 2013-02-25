@@ -5,6 +5,11 @@ import subprocess
 
 from SideBarItem import SideBarItem
 
+try:
+	unicode
+except NameError: # py3
+	unicode = str
+
 class Object():
 	pass
 
@@ -43,18 +48,18 @@ class SideBarGit:
 
 		debug = False
 		if debug:
-			print '----------------------------------------------------------'
-			print 'GIT:'
-			print object.command
-			print 'CWD:'
-			print object.item.forCwdSystemPath()
-			print 'PATH:'
-			print object.item.forCwdSystemName()
+			print ('----------------------------------------------------------')
+			print ('GIT:')
+			print (object.command)
+			print ('CWD:')
+			print (object.item.forCwdSystemPath())
+			print ('PATH:')
+			print (object.item.forCwdSystemName())
 
 		failed = False
 
 		if sublime.platform() == 'windows':
-			object.command = map(self.escapeCMDWindows, object.command)
+			object.command = list(map(self.escapeCMDWindows, object.command))
 
 		if sublime.platform() is not 'windows' and object.command[0] == 'git':
 			if path_to_git_unixes != '':
@@ -86,8 +91,8 @@ class SideBarGit:
 
 			if background:
 				if debug:
-					print 'SUCCESS'
-					print '----------------------------------------------------------'
+					print ('SUCCESS')
+					print ('----------------------------------------------------------')
 				return True
 
 			stdout, stderr = process.communicate()
@@ -97,34 +102,27 @@ class SideBarGit:
 			stdout = stdout.strip()
 
 			if stdout.find('fatal:') == 0 or stdout.find('error:') == 0 or stdout.find('Permission denied') == 0 or stderr:
-				print 'FAILED'
+				print ('FAILED')
 				failed = True
 			else:
 				if debug:
-					print 'SUCCESS'
+					print ('SUCCESS')
 			if stdout:
 				if debug:
-					print 'STDOUT'
-					print stdout
+					print ('STDOUT')
+					print (stdout)
 			if stderr:
-				print 'STDERR'
-				print stderr
-		except OSError as (errno, strerror):
-			print 'FAILED'
+				print ('STDERR')
+				print (stderr)
+		except (OSError, IOError) as e:
+			print ('FAILED')
 			failed = True
-			print errno
-			print strerror
-			SideBarGit.last_stdout = ''
-			self.last_stdout = ''
-		except IOError as (errno, strerror):
-			print 'FAILED'
-			failed = True
-			print errno
-			print strerror
+			print (e.errno)
+			print (e.strerror)
 			SideBarGit.last_stdout = ''
 			self.last_stdout = ''
 		if debug:
-			print '----------------------------------------------------------'
+			print ('----------------------------------------------------------')
 
 		try:
 			object.to_status_bar
@@ -242,7 +240,7 @@ class SideBarGit:
 
 	def confirm(self, message, function, arg1):
 		if int(sublime.version()) >= 2186:
-			if sublime.ok_cancel_dialog(u'Side Bar Git : '+message):
+			if sublime.ok_cancel_dialog(unicode('Side Bar Git : ')+message):
 				function(arg1, True)
 		else:
 			import functools
@@ -261,7 +259,7 @@ class SideBarGit:
 			try:
 				sublime.error_message('Git : '+message)
 			except:
-				print message
+				print (message)
 
 	def status(self, message):
 		message = message[:200] + (message[200:] and '…')
