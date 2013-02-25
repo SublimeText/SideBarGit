@@ -114,18 +114,11 @@ class SideBarGit:
 			if stderr:
 				print ('STDERR')
 				print (stderr)
-		except OSError as (errno, strerror):
+		except (OSError, IOError) as e:
 			print ('FAILED')
 			failed = True
-			print (errno)
-			print (strerror)
-			SideBarGit.last_stdout = ''
-			self.last_stdout = ''
-		except IOError as (errno, strerror):
-			print ('FAILED')
-			failed = True
-			print (errno)
-			print (strerror)
+			print (e.errno)
+			print (e.strerror)
 			SideBarGit.last_stdout = ''
 			self.last_stdout = ''
 		if debug:
@@ -266,7 +259,7 @@ class SideBarGit:
 			try:
 				sublime.error_message('Git : '+message)
 			except:
-				print message
+				print (message)
 
 	def status(self, message):
 		message = message[:200] + (message[200:] and '…')
