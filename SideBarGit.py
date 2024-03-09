@@ -1,10 +1,12 @@
 # coding=utf8
-import sublime
-import os, re
-import subprocess
-from .SideBarAPI import SideBarItem
 
+import sublime
+import os
+import re
+import subprocess
 import threading
+
+from .SideBarAPI import SideBarItem
 
 
 class Object:
@@ -13,14 +15,6 @@ class Object:
 
 class Content:
     pass
-
-
-s = {}
-
-
-def plugin_loaded():
-    global s
-    s = sublime.load_settings("SideBarGit.sublime-settings")
 
 
 def write_to_view(view, content):
@@ -151,27 +145,22 @@ class SideBarGit:
         if sublime.platform() == "windows":
             object.command = list(map(self.escapeCMDWindows, object.command))
 
-        if sublime.platform() is not "windows" and object.command[0] == "git":
-            if s.get("path_to_git_unixes") != "":
-                object.command[0] = s.get("path_to_git_unixes")
-            elif os.path.exists("/usr/local/git/bin"):
-                object.command[0] = "/usr/local/git/bin/git"
-
         cwd = object.item.forCwdSystemPath()
 
         try:
             if sublime.platform() == "windows":
-                if (
-                    "push" in object.command
-                    or "pull" in object.command
-                    or "clone" in object.command
-                    or "fetch" in object.command
-                ):
-                    object.command.insert(0, "/C")
-                    object.command.insert(0, "cmd")
-                    shell = False
-                else:
-                    shell = True
+                shell = True
+                # if (
+                #     "push" in object.command
+                #     or "pull" in object.command
+                #     or "clone" in object.command
+                #     or "fetch" in object.command
+                # ):
+                #     object.command.insert(0, "/C")
+                #     object.command.insert(0, "cmd")
+                #     shell = False
+                # else:
+                #     shell = True
                 process = subprocess.Popen(
                     # " ".join(object.command),
                     object.command,
@@ -349,16 +338,7 @@ class SideBarGit:
                     except:
                         view.settings().set("SideBarGitSyntaxFile", False)
 
-                content = "[SideBarGit@SublimeText "
-                content += object.item.name()
-                content += "/] "
-                content += " ".join(object.command)
-                content += "\n\n"
-                content += "# Improve this command, the output or the tab title by posting here:"
-                content += "\n"
-                content += "# http://www.sublimetext.com/forum/viewtopic.php?f=5&t=3405"
-                content += "\n"
-                content += "# Tip: F5 will run the command again and refresh the contents of this tab"
+                content = " ".join(object.command)
                 content += "\n\n"
                 content += stdout
 
@@ -404,8 +384,7 @@ class SideBarGit:
             view = sublime.active_window().new_file()
             view.settings().set("word_wrap", False)
             view.set_scratch(True)
-            content = "[SideBarGit@SublimeText] "
-            write_to_view(view, content + "\n" + message)
+            write_to_view(view, message)
         else:
             message = message.replace("\n", " ")
             try:
