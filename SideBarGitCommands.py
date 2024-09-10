@@ -472,13 +472,9 @@ class sidebar_git_ignore(sublime_plugin.WindowCommand):
             ignore_entry = re.sub(
                 "^/+", "", original.replace(item.dirname(), "").replace("\\", "/")
             )
-            if originalIsDirectory:
-                ignore_entry = ignore_entry
+
             content = item.contentUTF8().strip() + "\n" + ignore_entry
             content = content.replace("\r\n", "\n")
-            # content = list(set(content.split("\n")))
-            # content = sorted(content)
-            content = "\n".join(content)
 
             item.write(content.strip())
             SideBarGit().status('Ignored file "' + ignore_entry + '" on ' + item.path())
@@ -647,9 +643,7 @@ class sidebar_git_branch_new(sublime_plugin.WindowCommand):
 
                 def on_done(extra, data, result):
                     result = data[result].strip()
-                    if result.startswith("*"):
-                        return
-                    else:
+                    if not result.startswith("*"):
                         branch = result.split(" ")[0]
                         object = Object()
                         object.item = extra
@@ -657,17 +651,17 @@ class sidebar_git_branch_new(sublime_plugin.WindowCommand):
                         object.to_status_bar = True
                         SideBarGit().run(object, blocking=True)
 
-                        object = Object()
-                        object.item = extra
-                        object.command = ["git", "pull"]
-                        object.to_status_bar = True
-                        SideBarGit().run(object, blocking=True)
+                    object = Object()
+                    object.item = extra
+                    object.command = ["git", "pull"]
+                    object.to_status_bar = True
+                    SideBarGit().run(object, blocking=True)
 
-                        object = Object()
-                        object.item = extra
-                        object.command = ["git", "checkout", "-b", branchName]
-                        object.to_status_bar = True
-                        SideBarGit().run(object, blocking=True)
+                    object = Object()
+                    object.item = extra
+                    object.command = ["git", "checkout", "-b", branchName]
+                    object.to_status_bar = True
+                    SideBarGit().run(object, blocking=True)
 
                 SideBarGit().quickPanel(
                     on_done,

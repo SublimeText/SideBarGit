@@ -154,5 +154,5 @@
 			}
 		]
 	},
-	{ "caption": "-", "id": "side-bar-end-separator" }
+	{ "caption": "-", "id": "side-bar-git-end-separator" }
 ]
